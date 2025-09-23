@@ -6,7 +6,7 @@ function App() {
   return (
     <HashRouter>
       <Routes>
-        <Route path="/work" element={<WorkLogGenerator />} />
+        <Route path="/" element={<WorkLogGenerator />} />
       </Routes>
     </HashRouter>
   );
