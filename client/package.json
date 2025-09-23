@@ -2,7 +2,7 @@
   "name": "client",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://saadkhan2211.github.io/worklog-generator",
+  "homepage": "https://saadkhan2211.github.io/work-log/",
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.13.0",
