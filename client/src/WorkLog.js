@@ -78,8 +78,19 @@ const WorkLogGenerator = () => {
     );
   };
 
+  const formatTime12hr = (time) => {
+    if (!time) return "";
+    const [hour, minute] = time.split(":");
+    const h = parseInt(hour, 10);
+    const ampm = h >= 12 ? "PM" : "AM";
+    const formattedHour = h % 12 === 0 ? 12 : h % 12;
+    return `${formattedHour}:${minute} ${ampm}`;
+  };
+
   const generateLog = () => {
-    let log = `${date}\nCheck in ${checkIn}\nCheck out ${checkOut}\n\n`;
+    let log = `${date}\nCheck in ${formatTime12hr(
+      checkIn
+    )}\nCheck out ${formatTime12hr(checkOut)}\n\n`;
 
     projects.forEach((p) => {
       if (!p.name.trim()) return;
