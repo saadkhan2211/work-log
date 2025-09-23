@@ -18,6 +18,7 @@ import {
   Paper,
   Stack,
   Divider,
+  Checkbox,
 } from "@mui/material";
 import { Add, WorkHistory } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion"; // ✨
@@ -49,8 +50,48 @@ const WorkLogGenerator = () => {
   const addProject = () => {
     setProjects((prev) => [
       ...prev,
-      { id: Date.now(), name: "", tasks: [], newTask: "", taskType: "Added" },
+      {
+        id: Date.now(),
+        name: "",
+        tasks: [],
+        newTask: "",
+        taskType: "Added",
+        todos: [],
+        newTodo: "",
+      },
     ]);
+  };
+
+  const addTodo = (id) => {
+    setProjects((prev) =>
+      prev.map((p) =>
+        p.id === id && p.newTodo.trim()
+          ? {
+              ...p,
+              todos: [
+                ...p.todos,
+                { id: Date.now(), text: p.newTodo, done: false },
+              ],
+              newTodo: "",
+            }
+          : p
+      )
+    );
+  };
+
+  const toggleTodo = (projectId, todoId) => {
+    setProjects((prev) =>
+      prev.map((p) =>
+        p.id === projectId
+          ? {
+              ...p,
+              todos: p.todos.map((t) =>
+                t.id === todoId ? { ...t, done: !t.done } : t
+              ),
+            }
+          : p
+      )
+    );
   };
 
   const updateProjectField = (id, field, value) => {
@@ -95,9 +136,17 @@ const WorkLogGenerator = () => {
     projects.forEach((p) => {
       if (!p.name.trim()) return;
       log += `Project: ${p.name}\nTasks:\n`;
+
       p.tasks.forEach((t) => {
         log += `- ${t}\n`;
       });
+
+      p.todos
+        .filter((t) => t.done)
+        .forEach((t) => {
+          log += `- ${t.text}\n`;
+        });
+
       log += `\n`;
     });
 
@@ -181,11 +230,13 @@ const WorkLogGenerator = () => {
                   transition={{ duration: 0.4 }}
                 >
                   <Card sx={{ mb: 3, borderRadius: 2, boxShadow: 4 }}>
-                    <CardHeader
-                      title="Project"
-                      subheader="Add your project details and tasks"
-                    />
                     <CardContent>
+                      <Typography variant="subtitle1" gutterBottom>
+                        Project
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Add your project details and tasks.
+                      </Typography>
                       <TextField
                         fullWidth
                         label="Project Name"
@@ -193,7 +244,7 @@ const WorkLogGenerator = () => {
                         onChange={(e) =>
                           updateProjectField(project.id, "name", e.target.value)
                         }
-                        sx={{ mb: 2 }}
+                        sx={{ mb: 2, mt: 4 }}
                       />
 
                       <Grid container spacing={2} alignItems="center">
@@ -260,6 +311,96 @@ const WorkLogGenerator = () => {
                             • {t}
                           </ListItem>
                         ))}
+                      </List>
+                      <Divider sx={{ my: 2 }} />
+
+                      <Typography variant="subtitle1" gutterBottom>
+                        To-do List
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        To Add Your Assigned Tasks to Work logs, Use this one.
+                      </Typography>
+
+                      <Grid
+                        container
+                        spacing={2}
+                        alignItems="center"
+                        sx={{ mt: 1 }}
+                      >
+                        <Grid item xs={9}>
+                          <TextField
+                            fullWidth
+                            placeholder="Enter a to-do task"
+                            value={project.newTodo}
+                            onChange={(e) =>
+                              updateProjectField(
+                                project.id,
+                                "newTodo",
+                                e.target.value
+                              )
+                            }
+                          />
+                        </Grid>
+                        <Grid item xs={3}>
+                          <Button
+                            fullWidth
+                            variant="outlined"
+                            sx={{ py: 1.5 }}
+                            onClick={() => addTodo(project.id)}
+                          >
+                            Add
+                          </Button>
+                        </Grid>
+                      </Grid>
+
+                      <List dense sx={{ mt: 2 }}>
+                        {project.todos.length === 0 ? (
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ fontStyle: "italic", ml: 1 }}
+                          >
+                            No to-do items yet — add one above.
+                          </Typography>
+                        ) : (
+                          <AnimatePresence>
+                            {project.todos.map((todo) => (
+                              <motion.div
+                                key={todo.id}
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 20 }}
+                                transition={{ duration: 0.3 }}
+                              >
+                                <ListItem
+                                  secondaryAction={
+                                    <Checkbox
+                                      edge="end"
+                                      checked={todo.done}
+                                      onChange={() =>
+                                        toggleTodo(project.id, todo.id)
+                                      }
+                                    />
+                                  }
+                                >
+                                  <Typography
+                                    variant="body1"
+                                    sx={{
+                                      textDecoration: todo.done
+                                        ? "line-through"
+                                        : "none",
+                                      color: todo.done
+                                        ? "text.secondary"
+                                        : "text.primary",
+                                    }}
+                                  >
+                                    • {todo.text}
+                                  </Typography>
+                                </ListItem>
+                              </motion.div>
+                            ))}
+                          </AnimatePresence>
+                        )}
                       </List>
                     </CardContent>
                   </Card>
